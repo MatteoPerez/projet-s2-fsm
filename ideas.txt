@@ -1,0 +1,19 @@
+Pour la représentation, l'utilisateur fait ce qu'il veut au niveau de la mise en forme,
+SAUF pour l'état final et initial qui devront avoir des formes particulières, 
+pour le reste, l'étape de vérification se chargera de prévenir l'utilisateur s'il y a des problèmes.
+
+Choix de la simplicité pour quoi écrire dans chaque état : 
+un seul code unique sera écrit dans chaque état avec toutes les conditions de transitions à l'intérieur de celui-ci.
+
+3 solutions :
+
+- Faire en sorte que l'utilisateur écrive dans un autre document texte ou autre éditeur, 
+car l'écriture de code dans le logiciel yEd peut être compliqué.
+
+- Pour contrer le problème précédent, on peut mettre le code dans le "label" pour que le code soit déjà écrit et visible.
+Mais cela peut rendre le rendu graphique très vite illisible sur yEd.
+
+- Faire les 2 avec une option de choix au début du logiciel
+
+Questions : 
+Est-ce qu'il faut mettre forcément des flèches qui reviennent sur elle-même pour représenter par exemple des boucles "while" ?
