@@ -1,3 +1,6 @@
+import os
+import tkinter as tk
+from tkinter import filedialog
 from lxml import etree  # etree is used to parse XML files
 
 # Parse the GraphML file
@@ -45,8 +48,28 @@ def print_graph(nodes, edges):
     for edge in edges:
         print(f"  - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}")
 
-# Example
-if __name__ == "__main__":
-    graphml_file = "exp_vg_enemy.graphml"
-    nodes, edges = parse_graphml(graphml_file)
-    print_graph(nodes, edges)
+def choose_file():
+    file = filedialog.askopenfilename()
+    print(file)
+    if file:
+        extension = os.path.splitext(file)[1]
+        print(extension)
+        if extension == ".graphml":
+            nodes, edges = parse_graphml(file)
+            print_graph(nodes, edges)
+    else:
+        print("Error when selecting file")
+
+window = tk.Tk()
+window.title("FSM generator")
+
+choose_button = tk.Button(window, text="Choose file", command=choose_file)
+choose_button.pack()
+
+window.mainloop()
+
+# # Example
+# if __name__ == "__main__":
+#     graphml_file = "exp_vg_enemy.graphml"
+#     nodes, edges = parse_graphml(graphml_file)
+#     print_graph(nodes, edges)
