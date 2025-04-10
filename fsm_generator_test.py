@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from lxml import etree  # etree is used to parse XML files
+from jinja2 import Environment, FileSystemLoader
 
 # Parse the GraphML file
 def parse_graphml(file_path):
@@ -18,11 +19,19 @@ def parse_graphml(file_path):
     nodes = []
     for node in root.xpath("//graphml:node", namespaces=namespaces):  # Use XPath to find all <node> elements in the GraphML file
         node_id = node.get("id")    # Get id
+        
         label = node.xpath(".//y:NodeLabel/text()", namespaces=namespaces)  # Get label
         if label:
             label = label[0]
         else:
             f"Node_{node_id}"
+        
+        description = node.xpath(".//y:Description/text()", namespaces=namespaces)  # Get description
+        if description:
+            description = description[0]
+        else:
+            description = None
+        
         nodes.append({"id": node_id, "label": label})
 
     # Extract edges
@@ -38,6 +47,23 @@ def parse_graphml(file_path):
         edges.append({"source": source, "target": target, "label": label})
 
     return nodes, edges
+
+def generate_c_code(nodes, edges, output_file="generated_fsm.c"):
+    env = Environment(loader=FileSystemLoader('.'))
+    template = env.get_template("fsm_template.c.j2")
+    
+    # Map node id to node data for easier access
+    nodes_map = {node["id"]: node for node in nodes}
+    
+    # Choix du premier état (par défaut le premier dans la liste)
+    initial_state = nodes[0]["label"] if nodes else "UNKNOWN"
+    
+    output = template.render(nodes=nodes, edges=edges, nodes_map=nodes_map, initial_state=initial_state)
+    
+    with open(output_file, "w") as f:
+        f.write(output)
+    
+    print(f"Code C généré dans : {output_file}")
 
 def print_graph(nodes, edges):
     print("Nodes:")
@@ -57,6 +83,7 @@ def choose_file():
         if extension == ".graphml":
             nodes, edges = parse_graphml(file)
             print_graph(nodes, edges)
+            generate_c_code(nodes, edges)
     else:
         print("Error when selecting file")
 

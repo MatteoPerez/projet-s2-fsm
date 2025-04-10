@@ -1,0 +1,22 @@
+typedef enum {
+    {% for node in nodes -%}
+    STATE_{{ node.label|upper }},
+    {% endfor %}
+} State;
+
+State current_state = STATE_{{ initial_state|upper }};
+
+void fsm_transition(const char* event) {
+    switch (current_state) {
+        {% for node in nodes %}
+        case STATE_{{ node.label|upper }}:
+            {% for edge in edges if edge.source == node.id %}
+            if (strcmp(event, "{{ edge.label }}") == 0) {
+                {{ nodes_map[edge.target].description }}
+                current_state = STATE_{{ nodes_map[edge.target].label|upper }};
+            }
+            {% endfor %}
+            break;
+        {% endfor %}
+    }
+}
