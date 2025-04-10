@@ -1,18 +1,18 @@
 import os
 import tkinter as tk
 from tkinter import filedialog
-from lxml import etree  # etree is used to parse XML files
+from lxml import etree # etree is used to parse XML files
 from jinja2 import Environment, FileSystemLoader
 
 # Parse the GraphML file
 def parse_graphml(file_path):
-    tree = etree.parse(file_path)   # Read and parse the GraphML file
-    root = tree.getroot()   # Get the root element of the XML tree (i.e., <graphml> element in the file).
+    tree = etree.parse(file_path) # Read and parse the GraphML file
+    root = tree.getroot() # Get the root element of the XML tree (i.e., <graphml> element in the file).
 
     # Define namespaces (GraphML uses namespaces to avoid conflicts between different XML schemas)
     namespaces = {
-        'graphml': "http://graphml.graphdrawing.org/xmlns",  # Main namespace for GraphML
-        'y': "http://www.yworks.com/xml/graphml"    # Namespace used by yEd 
+        'graphml': "http://graphml.graphdrawing.org/xmlns", # Main namespace for GraphML
+        'y': "http://www.yworks.com/xml/graphml" # Namespace used by yEd 
     }
 
     fsms = {
@@ -21,32 +21,38 @@ def parse_graphml(file_path):
 
     # Extract nodes
     def extract_node(node):
-        node_id = node.get("id")    # Get id
-        label = node.xpath(".//y:NodeLabel/text()", namespaces=namespaces)  # Get label
+        node_id = node.get("id")
+        label = node.xpath(".//y:NodeLabel/text()", namespaces=namespaces)
         if label:
             label = label[0]
         else:
-            f"Node_{node_id}"
+            label = f"Node_{node_id}"
 
-        description_data = node.xpath("./graphml:data", namespaces=namespaces)
+        description_data = node.xpath("./graphml:data[@key='d5']", namespaces=namespaces)
         description = ""
         for data in description_data:
             if data.text:
                 description = data.text.strip()
-                print(description)
                 if description.startswith("<![CDATA["):
                     description = description[9:-3]
         if not description:
             description = "No description"
-        return {"id": node_id, "label": label, "description": description}
+        
+        shape = node.xpath(".//y:Shape/@type", namespaces=namespaces)
+        if shape:
+            shape = shape[0]
+        else:
+            shape = "Ellipse"
+
+        return {"id": node_id, "label": label, "description": description, "shape": shape}
     
-    for node in root.xpath("//graphml:node", namespaces=namespaces):    # Use XPath to find all <node> elements in the GraphML file
+    for node in root.xpath("//graphml:node", namespaces=namespaces): # Use XPath to find all <node> elements in the GraphML file
         is_group = node.xpath(".//graphml:graph", namespaces=namespaces)
         if not is_group:
             fsms["global"]["nodes"].append(extract_node(node))
 
     # Extract edges
-    for edge in root.xpath("//graphml:edge", namespaces=namespaces):  # Find all <edge> elements and use 'graphml' prefix
+    for edge in root.xpath("//graphml:edge", namespaces=namespaces): # Find all <edge> elements and use 'graphml' prefix
         source = edge.get("source")
         target = edge.get("target")
         label = edge.xpath(".//y:EdgeLabel/text()", namespaces=namespaces)
@@ -72,6 +78,14 @@ def parse_graphml(file_path):
                 label = subedge.xpath(".//y:EdgeLabel/text()", namespaces=namespaces)
                 label = label[0].strip() if label else ""
                 fsms[group_label]["edges"].append({"source": source, "target": target, "label": label})
+
+    for fsm_name, fsm in fsms.items():
+        # Find the node with the shape "octagon" to set as the initial state
+        initial_node = next((node for node in fsm["nodes"] if node["shape"] == "octagon"), None)
+        if initial_node:
+            fsm["initial_state"] = initial_node["label"]
+        else:
+            fsm["initial_state"] = fsm["nodes"][0]["label"] # First node is default if no octagon is found
 
     return fsms
 

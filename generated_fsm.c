@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <pthread.h>
+#include <unistd.h>
 
 
 typedef enum {
@@ -26,7 +28,261 @@ typedef enum {
     
 } global_State;
 
-static global_State global_current_state = TAKE_COVER;
+static global_State global_current_state = PATROL;
+
+void global_step() {
+    switch (global_current_state) {
+        
+        case TAKE_COVER:
+            
+            printf("Le soldat se met � couvert.\n");
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = RELOAD;
+                
+                printf("Le soldat recharge.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = ATTACK;
+                
+                printf("Le soldat tire.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                printf("Le soldat a p�ri.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
+                
+                printf("Le joueur a p�ri.\n");
+                
+                break;
+            }
+            
+            break;
+        
+        case ATTACK:
+            
+            printf("Le soldat tire.\n");
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = PATROL;
+                
+                printf("Le soldat est en patrouille.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = RELOAD;
+                
+                printf("Le soldat recharge.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                printf("Le soldat a p�ri.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = TAKE_COVER;
+                
+                printf("Le soldat se met � couvert.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
+                
+                printf("Le joueur a p�ri.\n");
+                
+                break;
+            }
+            
+            break;
+        
+        case PATROL:
+            
+            printf("Le soldat est en patrouille.\n");
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = ATTACK;
+                
+                printf("Le soldat tire.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour No more health */) {
+                global_current_state = DEAD;
+                
+                printf("Le soldat a p�ri.\n");
+                
+                break;
+            }
+            
+            break;
+        
+        case RELOAD:
+            
+            printf("Le soldat recharge.\n");
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = TAKE_COVER;
+                
+                printf("Le soldat se met � couvert.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = ATTACK;
+                
+                printf("Le soldat tire.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                printf("Le soldat a p�ri.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
+                
+                printf("Le joueur a p�ri.\n");
+                
+                break;
+            }
+            
+            break;
+        
+        case DEAD:
+            
+            printf("Le soldat a p�ri.\n");
+            
+
+            
+            break;
+        
+        case WINNER:
+            
+            printf("Le joueur a p�ri.\n");
+            
+
+            
+            break;
+        
+        case IDLE:
+            
+            printf("Tourelle � l'arr�t\n");
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = PATROL;
+                
+                printf("Tourelle en patrouille\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                printf("Tourelle HS !\n");
+                
+                break;
+            }
+            
+            break;
+        
+        case PATROL:
+            
+            printf("Tourelle en patrouille\n");
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                printf("Tourelle HS !\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
+                
+                printf("Le joueur a p�ri.\n");
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = PATROL;
+                
+                printf("Tourelle en patrouille\n");
+                
+                break;
+            }
+            
+            break;
+        
+        case WINNER:
+            
+            printf("Le joueur a p�ri.\n");
+            
+
+            
+            break;
+        
+        case DEAD:
+            
+            printf("Tourelle HS !\n");
+            
+
+            
+            break;
+        
+    }
+}
+
+void* global_run(void* arg) {
+    while (true) {
+        global_step();
+        usleep(100000);
+    }
+    return NULL;
+}
 
 
 typedef enum {
@@ -39,194 +295,32 @@ typedef enum {
     
     DEAD,
     
-} Group 1_State;
+} Group_1_State;
 
-static Group 1_State Group 1_current_state = IDLE;
+static Group_1_State Group_1_current_state = IDLE;
 
-
-
-
-void global_step();
-
-void Group 1_step();
-
-
-
-void global_step() {
-    switch (global_current_state) {
-        
-        case TAKE_COVER:
-            
-            
-
-            
-            if (/* condition pour transition */) {
-                global_current_state = RELOAD;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = ATTACK;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = DEAD;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = WINNER;
-                
-                break;
-            }
-            
-            break;
-        
-        case ATTACK:
-            
-            
-
-            
-            if (/* condition pour transition */) {
-                global_current_state = PATROL;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = RELOAD;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = DEAD;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = TAKE_COVER;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = WINNER;
-                
-                break;
-            }
-            
-            break;
-        
-        case PATROL:
-            
-            
-
-            
-            if (/* condition pour transition */) {
-                global_current_state = ATTACK;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = DEAD;
-                
-                break;
-            }
-            
-            break;
-        
-        case RELOAD:
-            
-            
-
-            
-            if (/* condition pour transition */) {
-                global_current_state = TAKE_COVER;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = ATTACK;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = DEAD;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = WINNER;
-                
-                break;
-            }
-            
-            break;
-        
-        case DEAD:
-            
-            
-
-            
-            break;
-        
-        case WINNER:
-            
-            
-
-            
-            break;
+void Group_1_step() {
+    switch (Group_1_current_state) {
         
         case IDLE:
             
+            printf("Tourelle � l'arr�t\n");
             
 
-            
-            if (/* condition pour transition */) {
-                global_current_state = PATROL;
-                
-                break;
-            }
             
             break;
         
         case PATROL:
             
+            printf("Tourelle en patrouille\n");
             
 
-            
-            if (/* condition pour transition */) {
-                global_current_state = DEAD;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = WINNER;
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
-                global_current_state = PATROL;
-                
-                break;
-            }
             
             break;
         
         case WINNER:
             
+            printf("Le joueur a p�ri.\n");
             
 
             
@@ -234,6 +328,7 @@ void global_step() {
         
         case DEAD:
             
+            printf("Tourelle HS !\n");
             
 
             
@@ -242,48 +337,28 @@ void global_step() {
     }
 }
 
-void Group 1_step() {
-    switch (Group 1_current_state) {
-        
-        case IDLE:
-            
-            
-
-            
-            break;
-        
-        case PATROL:
-            
-            
-
-            
-            break;
-        
-        case WINNER:
-            
-            
-
-            
-            break;
-        
-        case DEAD:
-            
-            
-
-            
-            break;
-        
+void* Group_1_run(void* arg) {
+    while (true) {
+        Group_1_step();
+        usleep(100000);
     }
+    return NULL;
 }
+
 
 
 int main() {
-    while (true) {
-        
-        global_step();
-        
-        Group 1_step();
-        
+    pthread_t threads[2];
+    int thread_index = 0;
+
+    
+    pthread_create(&threads[thread_index++], NULL, global_run, NULL);
+    
+    pthread_create(&threads[thread_index++], NULL, Group_1_run, NULL);
+    
+
+    for (int i = 0; i < 2; i++) {
+        pthread_join(threads[i], NULL);
     }
 
     return 0;

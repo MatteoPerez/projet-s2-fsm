@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <pthread.h>
+#include <unistd.h>
 
 {% for fsm_name, fsm in fsms.items() %}
 typedef enum {
@@ -8,22 +10,14 @@ typedef enum {
     {% endfor %}
 } {{ fsm_name }}_State;
 
-static {{ fsm_name }}_State {{ fsm_name }}_current_state = {{ fsm.nodes[0].label | upper }};
+static {{ fsm_name }}_State {{ fsm_name }}_current_state = {{ fsm.initial_state | upper }};
 
-{% endfor %}
-
-{% for fsm_name, fsm in fsms.items() %}
-void {{ fsm_name }}_step();
-{% endfor %}
-
-{% for fsm_name, fsm in fsms.items() %}
 void {{ fsm_name }}_step() {
     switch ({{ fsm_name }}_current_state) {
         {% for node in fsm.nodes %}
         case {{ node.label | upper }}:
             {% if node.description %}
             {{ node.description | indent(12) }}
-            {% else %}
             {% endif %}
 
             {% for edge in fsm.edges if edge.source == node.id %}
@@ -39,13 +33,27 @@ void {{ fsm_name }}_step() {
         {% endfor %}
     }
 }
+
+void* {{ fsm_name }}_run(void* arg) {
+    while (true) {
+        {{ fsm_name }}_step();
+        usleep(100000);
+    }
+    return NULL;
+}
+
 {% endfor %}
 
 int main() {
-    while (true) {
-        {% for fsm_name in fsms %}
-        {{ fsm_name }}_step();
-        {% endfor %}
+    pthread_t threads[{{ fsms|length }}];
+    int thread_index = 0;
+
+    {% for fsm_name in fsms %}
+    pthread_create(&threads[thread_index++], NULL, {{ fsm_name }}_run, NULL);
+    {% endfor %}
+
+    for (int i = 0; i < {{ fsms|length }}; i++) {
+        pthread_join(threads[i], NULL);
     }
 
     return 0;
