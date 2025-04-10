@@ -1,22 +1,52 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+{% for fsm_name, fsm in fsms.items() %}
 typedef enum {
-    {% for node in nodes -%}
-    STATE_{{ node.label|upper }},
+    {% for node in fsm.nodes %}
+    {{ node.label | upper }},
     {% endfor %}
-} State;
+} {{ fsm_name }}_State;
 
-State current_state = STATE_{{ initial_state|upper }};
+static {{ fsm_name }}_State {{ fsm_name }}_current_state = {{ fsm.nodes[0].label | upper }};
 
-void fsm_transition(const char* event) {
-    switch (current_state) {
-        {% for node in nodes %}
-        case STATE_{{ node.label|upper }}:
-            {% for edge in edges if edge.source == node.id %}
-            if (strcmp(event, "{{ edge.label }}") == 0) {
-                {{ nodes_map[edge.target].description }}
-                current_state = STATE_{{ nodes_map[edge.target].label|upper }};
+{% endfor %}
+
+{% for fsm_name, fsm in fsms.items() %}
+void {{ fsm_name }}_step();
+{% endfor %}
+
+{% for fsm_name, fsm in fsms.items() %}
+void {{ fsm_name }}_step() {
+    switch ({{ fsm_name }}_current_state) {
+        {% for node in fsm.nodes %}
+        case {{ node.label | upper }}:
+            {% if node.description %}
+            {{ node.description | indent(12) }}
+            {% else %}
+            {% endif %}
+
+            {% for edge in fsm.edges if edge.source == node.id %}
+            if (/* condition pour {{ edge.label or "transition" }} */) {
+                {{ fsm_name }}_current_state = {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).label | upper }};
+                {% if (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description %}
+                {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description | indent(16) }}
+                {% endif %}
+                break;
             }
             {% endfor %}
             break;
         {% endfor %}
     }
+}
+{% endfor %}
+
+int main() {
+    while (true) {
+        {% for fsm_name in fsms %}
+        {{ fsm_name }}_step();
+        {% endfor %}
+    }
+
+    return 0;
 }

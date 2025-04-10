@@ -1,116 +1,290 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+
 typedef enum {
-    STATE_TAKE_COVER,
-    STATE_ATTACK,
-    STATE_PATROL,
-    STATE_RELOAD,
-    STATE_DEAD,
-    STATE_WINNER,
     
-} State;
+    TAKE_COVER,
+    
+    ATTACK,
+    
+    PATROL,
+    
+    RELOAD,
+    
+    DEAD,
+    
+    WINNER,
+    
+    IDLE,
+    
+    PATROL,
+    
+    WINNER,
+    
+    DEAD,
+    
+} global_State;
 
-State current_state = STATE_TAKE_COVER;
+static global_State global_current_state = TAKE_COVER;
 
-void fsm_transition(const char* event) {
-    switch (current_state) {
+
+typedef enum {
+    
+    IDLE,
+    
+    PATROL,
+    
+    WINNER,
+    
+    DEAD,
+    
+} Group 1_State;
+
+static Group 1_State Group 1_current_state = IDLE;
+
+
+
+
+void global_step();
+
+void Group 1_step();
+
+
+
+void global_step() {
+    switch (global_current_state) {
         
-        case STATE_TAKE_COVER:
+        case TAKE_COVER:
             
-            if (strcmp(event, "None") == 0) {
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = RELOAD;
                 
-                current_state = STATE_RELOAD;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = ATTACK;
                 
-                current_state = STATE_ATTACK;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
                 
-                current_state = STATE_DEAD;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
                 
-                current_state = STATE_WINNER;
+                break;
             }
             
             break;
         
-        case STATE_ATTACK:
+        case ATTACK:
             
-            if (strcmp(event, "None") == 0) {
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = PATROL;
                 
-                current_state = STATE_PATROL;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = RELOAD;
                 
-                current_state = STATE_RELOAD;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
                 
-                current_state = STATE_DEAD;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = TAKE_COVER;
                 
-                current_state = STATE_TAKE_COVER;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
                 
-                current_state = STATE_WINNER;
-            }
-            
-            break;
-        
-        case STATE_PATROL:
-            
-            if (strcmp(event, "None") == 0) {
-                
-                current_state = STATE_ATTACK;
-            }
-            
-            if (strcmp(event, "None") == 0) {
-                
-                current_state = STATE_DEAD;
+                break;
             }
             
             break;
         
-        case STATE_RELOAD:
+        case PATROL:
             
-            if (strcmp(event, "None") == 0) {
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = ATTACK;
                 
-                current_state = STATE_TAKE_COVER;
+                break;
             }
             
-            if (strcmp(event, "None") == 0) {
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
                 
-                current_state = STATE_ATTACK;
-            }
-            
-            if (strcmp(event, "None") == 0) {
-                
-                current_state = STATE_DEAD;
-            }
-            
-            if (strcmp(event, "None") == 0) {
-                
-                current_state = STATE_WINNER;
+                break;
             }
             
             break;
         
-        case STATE_DEAD:
+        case RELOAD:
+            
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = TAKE_COVER;
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = ATTACK;
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
+                
+                break;
+            }
             
             break;
         
-        case STATE_WINNER:
+        case DEAD:
+            
+            
+
+            
+            break;
+        
+        case WINNER:
+            
+            
+
+            
+            break;
+        
+        case IDLE:
+            
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = PATROL;
+                
+                break;
+            }
+            
+            break;
+        
+        case PATROL:
+            
+            
+
+            
+            if (/* condition pour transition */) {
+                global_current_state = DEAD;
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = WINNER;
+                
+                break;
+            }
+            
+            if (/* condition pour transition */) {
+                global_current_state = PATROL;
+                
+                break;
+            }
+            
+            break;
+        
+        case WINNER:
+            
+            
+
+            
+            break;
+        
+        case DEAD:
+            
+            
+
             
             break;
         
     }
+}
+
+void Group 1_step() {
+    switch (Group 1_current_state) {
+        
+        case IDLE:
+            
+            
+
+            
+            break;
+        
+        case PATROL:
+            
+            
+
+            
+            break;
+        
+        case WINNER:
+            
+            
+
+            
+            break;
+        
+        case DEAD:
+            
+            
+
+            
+            break;
+        
+    }
+}
+
+
+int main() {
+    while (true) {
+        
+        global_step();
+        
+        Group 1_step();
+        
+    }
+
+    return 0;
 }
