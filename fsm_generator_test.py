@@ -93,7 +93,7 @@ def generate_c_code(fsms, output_file="generated_fsm.c"):
     env = Environment(loader=FileSystemLoader('.'))
     template = env.get_template("fsm_template.c.j2")    
     output = template.render(fsms=fsms)
-    with open(output_file, "w") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(output)
     print(f"Code C généré dans : {output_file}")
 

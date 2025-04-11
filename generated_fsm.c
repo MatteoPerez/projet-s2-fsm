@@ -35,7 +35,7 @@ void global_step() {
         
         case TAKE_COVER:
             
-            printf("Le soldat se met � couvert.\n");
+            printf("Le soldat se met se cache.\n");
             
 
             
@@ -58,7 +58,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = DEAD;
                 
-                printf("Le soldat a p�ri.\n");
+                printf("Le soldat est morti.\n");
                 
                 break;
             }
@@ -66,7 +66,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = WINNER;
                 
-                printf("Le joueur a p�ri.\n");
+                printf("Le joueur a péri.\n");
                 
                 break;
             }
@@ -98,7 +98,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = DEAD;
                 
-                printf("Le soldat a p�ri.\n");
+                printf("Le soldat est morti.\n");
                 
                 break;
             }
@@ -106,7 +106,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = TAKE_COVER;
                 
-                printf("Le soldat se met � couvert.\n");
+                printf("Le soldat se met se cache.\n");
                 
                 break;
             }
@@ -114,7 +114,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = WINNER;
                 
-                printf("Le joueur a p�ri.\n");
+                printf("Le joueur a péri.\n");
                 
                 break;
             }
@@ -138,7 +138,7 @@ void global_step() {
             if (/* condition pour No more health */) {
                 global_current_state = DEAD;
                 
-                printf("Le soldat a p�ri.\n");
+                printf("Le soldat est morti.\n");
                 
                 break;
             }
@@ -154,7 +154,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = TAKE_COVER;
                 
-                printf("Le soldat se met � couvert.\n");
+                printf("Le soldat se met se cache.\n");
                 
                 break;
             }
@@ -170,7 +170,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = DEAD;
                 
-                printf("Le soldat a p�ri.\n");
+                printf("Le soldat est morti.\n");
                 
                 break;
             }
@@ -178,7 +178,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = WINNER;
                 
-                printf("Le joueur a p�ri.\n");
+                printf("Le joueur a péri.\n");
                 
                 break;
             }
@@ -187,7 +187,7 @@ void global_step() {
         
         case DEAD:
             
-            printf("Le soldat a p�ri.\n");
+            printf("Le soldat est morti.\n");
             
 
             
@@ -195,7 +195,7 @@ void global_step() {
         
         case WINNER:
             
-            printf("Le joueur a p�ri.\n");
+            printf("Le joueur a péri.\n");
             
 
             
@@ -203,7 +203,7 @@ void global_step() {
         
         case IDLE:
             
-            printf("Tourelle � l'arr�t\n");
+            printf("Tourelle en attente.\n");
             
 
             
@@ -215,7 +215,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (/* condition pour No more health (player or turret) */) {
                 global_current_state = DEAD;
                 
                 printf("Tourelle HS !\n");
@@ -242,7 +242,7 @@ void global_step() {
             if (/* condition pour transition */) {
                 global_current_state = WINNER;
                 
-                printf("Le joueur a p�ri.\n");
+                printf("Le joueur est morti.\n");
                 
                 break;
             }
@@ -259,7 +259,7 @@ void global_step() {
         
         case WINNER:
             
-            printf("Le joueur a p�ri.\n");
+            printf("Le joueur est morti.\n");
             
 
             
@@ -304,7 +304,7 @@ void Group_1_step() {
         
         case IDLE:
             
-            printf("Tourelle � l'arr�t\n");
+            printf("Tourelle en attente.\n");
             
 
             
@@ -320,7 +320,7 @@ void Group_1_step() {
         
         case WINNER:
             
-            printf("Le joueur a p�ri.\n");
+            printf("Le joueur est morti.\n");
             
 
             
