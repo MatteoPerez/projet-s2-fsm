@@ -1,3 +1,4 @@
+// Cooperative multitasking
 #include <stdio.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -26,20 +27,20 @@ typedef enum {
     
     DEAD,
     
-} global_State;
+} global_state;
 
-static global_State global_current_state = PATROL;
+static global_state global_current_state = PATROL;
 
 void global_step() {
     switch (global_current_state) {
         
         case TAKE_COVER:
             
-            printf("Le soldat se met se cache.\n");
+            printf("Le soldat se cache.\n");
             
 
             
-            if (/* condition pour transition */) {
+            if (ammo <= 0) {
                 global_current_state = RELOAD;
                 
                 printf("Le soldat recharge.\n");
@@ -47,7 +48,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (enemy_spotted) {
                 global_current_state = ATTACK;
                 
                 printf("Le soldat tire.\n");
@@ -55,7 +56,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (health == 0) {
                 global_current_state = DEAD;
                 
                 printf("Le soldat est morti.\n");
@@ -63,7 +64,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (player_health <= 0) {
                 global_current_state = WINNER;
                 
                 printf("Le joueur a péri.\n");
@@ -79,7 +80,7 @@ void global_step() {
             
 
             
-            if (/* condition pour transition */) {
+            if (!enemy_spoted) {
                 global_current_state = PATROL;
                 
                 printf("Le soldat est en patrouille.\n");
@@ -87,7 +88,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (ammo <= 0) {
                 global_current_state = RELOAD;
                 
                 printf("Le soldat recharge.\n");
@@ -95,7 +96,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (health == 0) {
                 global_current_state = DEAD;
                 
                 printf("Le soldat est morti.\n");
@@ -103,15 +104,15 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (health < (health/2)) {
                 global_current_state = TAKE_COVER;
                 
-                printf("Le soldat se met se cache.\n");
+                printf("Le soldat se cache.\n");
                 
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (player_health <= 0) {
                 global_current_state = WINNER;
                 
                 printf("Le joueur a péri.\n");
@@ -127,7 +128,7 @@ void global_step() {
             
 
             
-            if (/* condition pour transition */) {
+            if (enemy_spotted) {
                 global_current_state = ATTACK;
                 
                 printf("Le soldat tire.\n");
@@ -135,7 +136,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour No more health */) {
+            if (health == 0) {
                 global_current_state = DEAD;
                 
                 printf("Le soldat est morti.\n");
@@ -151,15 +152,7 @@ void global_step() {
             
 
             
-            if (/* condition pour transition */) {
-                global_current_state = TAKE_COVER;
-                
-                printf("Le soldat se met se cache.\n");
-                
-                break;
-            }
-            
-            if (/* condition pour transition */) {
+            if (enemy_spotted) {
                 global_current_state = ATTACK;
                 
                 printf("Le soldat tire.\n");
@@ -167,7 +160,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (health == 0) {
                 global_current_state = DEAD;
                 
                 printf("Le soldat est morti.\n");
@@ -175,7 +168,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (player_health <= 0) {
                 global_current_state = WINNER;
                 
                 printf("Le joueur a péri.\n");
@@ -207,7 +200,7 @@ void global_step() {
             
 
             
-            if (/* condition pour transition */) {
+            if (enemy_spotted) {
                 global_current_state = PATROL;
                 
                 printf("Tourelle en patrouille\n");
@@ -215,7 +208,7 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour No more health (player or turret) */) {
+            if (health <= 0 || turret_health <= 0) {
                 global_current_state = DEAD;
                 
                 printf("Tourelle HS !\n");
@@ -231,7 +224,7 @@ void global_step() {
             
 
             
-            if (/* condition pour transition */) {
+            if (health <= 0 || turret_health <= 0) {
                 global_current_state = DEAD;
                 
                 printf("Tourelle HS !\n");
@@ -239,15 +232,15 @@ void global_step() {
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (player_health <= 0) {
                 global_current_state = WINNER;
                 
-                printf("Le joueur est morti.\n");
+                printf("Le joueur est mort.\n");
                 
                 break;
             }
             
-            if (/* condition pour transition */) {
+            if (enemy_spotted) {
                 global_current_state = PATROL;
                 
                 printf("Tourelle en patrouille\n");
@@ -259,7 +252,7 @@ void global_step() {
         
         case WINNER:
             
-            printf("Le joueur est morti.\n");
+            printf("Le joueur est mort.\n");
             
 
             
@@ -284,7 +277,6 @@ void* global_run(void* arg) {
     return NULL;
 }
 
-
 typedef enum {
     
     IDLE,
@@ -295,12 +287,12 @@ typedef enum {
     
     DEAD,
     
-} Group_1_State;
+} Turret_state;
 
-static Group_1_State Group_1_current_state = IDLE;
+static Turret_state Turret_current_state = IDLE;
 
-void Group_1_step() {
-    switch (Group_1_current_state) {
+void Turret_step() {
+    switch (Turret_current_state) {
         
         case IDLE:
             
@@ -320,7 +312,7 @@ void Group_1_step() {
         
         case WINNER:
             
-            printf("Le joueur est morti.\n");
+            printf("Le joueur est mort.\n");
             
 
             
@@ -337,29 +329,21 @@ void Group_1_step() {
     }
 }
 
-void* Group_1_run(void* arg) {
+void* Turret_run(void* arg) {
     while (true) {
-        Group_1_step();
+        Turret_step();
         usleep(100000);
     }
     return NULL;
 }
 
 
-
 int main() {
-    pthread_t threads[2];
-    int thread_index = 0;
-
-    
-    pthread_create(&threads[thread_index++], NULL, global_run, NULL);
-    
-    pthread_create(&threads[thread_index++], NULL, Group_1_run, NULL);
-    
-
-    for (int i = 0; i < 2; i++) {
-        pthread_join(threads[i], NULL);
+    while(1){
+        
+        global_step();
+        
+        Turret_step();
+        
     }
-
-    return 0;
 }

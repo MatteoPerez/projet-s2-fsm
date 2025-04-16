@@ -1,0 +1,62 @@
+// Preeptive multitasking
+#include <stdio.h>
+#include <stdbool.h>
+#include <pthread.h>
+#include <unistd.h>
+#include "FreeRTOS.h"
+#include "task.h"
+
+{% for fsm_name, fsm in fsms.items() %}
+typedef enum {
+    {% for node in fsm.nodes %}
+    {{ node.label | upper }},
+    {% endfor %}
+} {{ fsm_name }}_state;
+
+static {{ fsm_name }}_state {{ fsm_name }}_current_state = {{ fsm.initial_state | upper }};
+
+void {{ fsm_name }}_step() {
+    while(1){
+        switch ({{ fsm_name }}_current_state) {
+        {% for node in fsm.nodes %}
+        case {{ node.label | upper }}:
+            {% if node.description %}
+            {{ node.description | indent(12) }}
+            {% endif %}
+
+            {% for edge in fsm.edges if edge.source == node.id %}
+            if ({{ (fsm.edges | selectattr("target", "equalto", edge.target) | first).description }}) {
+                {{ fsm_name }}_current_state = {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).label | upper }};
+                {% if (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description %}
+                {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description | indent(16) }}
+                {% endif %}
+                break;
+            }
+            {% endfor %}
+            break;
+        {% endfor %}
+    }
+}
+
+void* {{ fsm_name }}_run(void* arg) {
+    while (true) {
+        {{ fsm_name }}_step();
+        usleep(100000);
+    }
+    return NULL;
+}
+{% endfor %}
+
+int main() {
+    pthread_t threads[{{ fsms|length }}];
+    int thread_index = 0;
+
+    {% for fsm_name in fsms %}
+    pthread_create(&threads[thread_index++], NULL, {{ fsm_name }}_run, NULL);
+    {% endfor %}
+
+    for (int i = 0; i < {{ fsms|length }}; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    while(1);
+}

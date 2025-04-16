@@ -1,1 +1,5 @@
 pip install lxml
+pip install jinja2
+pip install tkinter
+
+python fsm_generator_test.py

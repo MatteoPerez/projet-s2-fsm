@@ -1,0 +1,52 @@
+// Cooperative multitasking
+#include <stdio.h>
+#include <stdbool.h>
+#include <unistd.h>
+
+{% for fsm_name, fsm in fsms.items() %}
+typedef enum {
+    {% for node in fsm.nodes %}
+    {{ node.label | upper }},
+    {% endfor %}
+} {{ fsm_name }}_state;
+
+static {{ fsm_name }}_state {{ fsm_name }}_current_state = {{ fsm.initial_state | upper }};
+
+void {{ fsm_name }}_step() {
+    switch ({{ fsm_name }}_current_state) {
+        {% for node in fsm.nodes %}
+        case {{ node.label | upper }}:
+            {% if node.description %}
+            {{ node.description | indent(12) }}
+            {% endif %}
+
+            {% for edge in fsm.edges if edge.source == node.id %}
+            if ({{ (fsm.edges | selectattr("target", "equalto", edge.target) | first).description }}) {
+                {{ fsm_name }}_current_state = {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).label | upper }};
+                {% if (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description %}
+                {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description | indent(16) }}
+                {% endif %}
+                break;
+            }
+            {% endfor %}
+            break;
+        {% endfor %}
+    }
+}
+
+void* {{ fsm_name }}_run(void* arg) {
+    while (true) {
+        {{ fsm_name }}_step();
+        usleep(100000);
+    }
+    return NULL;
+}
+{% endfor %}
+
+int main() {
+    while(1){
+        {% for fsm_name in fsms %}
+        {{ fsm_name }}_step();
+        {% endfor %}
+    }
+}

@@ -1,0 +1,5 @@
+Ce logiciel vous permet de créer le code C correspondant au graphe d'une machine d'état;
+Certaines conditions sont à respectés :
+- L'état initial doit être un octogone, et les états finaux (s'il y en a) doivent être des diamants.
+- Les sous-graphes doivent-être placés dans des groupes.
+- Les label ne doivent pas contenir d'espace ou de caractères spéciaux.
