@@ -91,7 +91,7 @@ def parse_graphml(file_path):
             #     print(subedge)
             #     fsms[group_label]["edges"].append(extract_edge(subedge))
 
-    for fsm in fsms.items():
+    for fsm_name, fsm in fsms.items():
         # Find the node with the shape "octagon" to set as the initial state
         initial_node = next((node for node in fsm["nodes"] if node["shape"] == "octagon"), None)
         if initial_node:

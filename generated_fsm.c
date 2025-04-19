@@ -1,7 +1,6 @@
 // Cooperative multitasking
 #include <stdio.h>
 #include <stdbool.h>
-#include <pthread.h>
 #include <unistd.h>
 
 
@@ -30,42 +29,123 @@ typedef enum {
 } global_state;
 
 static global_state global_current_state = PATROL;
+static bool global_state_entered = false; // Tracks if the state was just entered
 
 void global_step() {
+    if (!global_state_entered) {
+        switch (global_current_state) {
+            
+            case TAKE_COVER:
+                
+                printf("Le soldat se cache.\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case ATTACK:
+                
+                printf("Le soldat tire.\n");
+                ammo -= 1;
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case PATROL:
+                
+                printf("Le soldat est en patrouille.\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case RELOAD:
+                
+                printf("Le soldat recharge.\n");
+                ammo = max_ammo;
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case DEAD:
+                
+                printf("Le soldat est mort.\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case WINNER:
+                
+                printf("Le joueur a péri.\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case IDLE:
+                
+                printf("Tourelle en attente.\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case PATROL:
+                
+                printf("Tourelle en patrouille\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case WINNER:
+                
+                printf("Le joueur est mort.\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+            case DEAD:
+                
+                printf("Tourelle HS !\n");
+                
+                global_state_entered = true; // Mark the state as entered
+                break;
+            
+        }
+    }
+
     switch (global_current_state) {
         
         case TAKE_COVER:
             
-            printf("Le soldat se cache.\n");
-            
-
-            
             if (ammo <= 0) {
                 global_current_state = RELOAD;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat recharge.\n");
+                ammo = max_ammo;
                 
                 break;
             }
             
             if (enemy_spotted) {
                 global_current_state = ATTACK;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat tire.\n");
+                ammo -= 1;
                 
                 break;
             }
             
             if (health == 0) {
                 global_current_state = DEAD;
+                global_state_entered = false; // Reset the state entry flag
                 
-                printf("Le soldat est morti.\n");
+                printf("Le soldat est mort.\n");
                 
                 break;
             }
             
             if (player_health <= 0) {
                 global_current_state = WINNER;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le joueur a péri.\n");
                 
@@ -76,12 +156,9 @@ void global_step() {
         
         case ATTACK:
             
-            printf("Le soldat tire.\n");
-            
-
-            
             if (!enemy_spoted) {
                 global_current_state = PATROL;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat est en patrouille.\n");
                 
@@ -90,22 +167,26 @@ void global_step() {
             
             if (ammo <= 0) {
                 global_current_state = RELOAD;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat recharge.\n");
+                ammo = max_ammo;
                 
                 break;
             }
             
             if (health == 0) {
                 global_current_state = DEAD;
+                global_state_entered = false; // Reset the state entry flag
                 
-                printf("Le soldat est morti.\n");
+                printf("Le soldat est mort.\n");
                 
                 break;
             }
             
             if (health < (health/2)) {
                 global_current_state = TAKE_COVER;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat se cache.\n");
                 
@@ -114,6 +195,7 @@ void global_step() {
             
             if (player_health <= 0) {
                 global_current_state = WINNER;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le joueur a péri.\n");
                 
@@ -124,22 +206,21 @@ void global_step() {
         
         case PATROL:
             
-            printf("Le soldat est en patrouille.\n");
-            
-
-            
             if (enemy_spotted) {
                 global_current_state = ATTACK;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat tire.\n");
+                ammo -= 1;
                 
                 break;
             }
             
             if (health == 0) {
                 global_current_state = DEAD;
+                global_state_entered = false; // Reset the state entry flag
                 
-                printf("Le soldat est morti.\n");
+                printf("Le soldat est mort.\n");
                 
                 break;
             }
@@ -148,28 +229,28 @@ void global_step() {
         
         case RELOAD:
             
-            printf("Le soldat recharge.\n");
-            
-
-            
             if (enemy_spotted) {
                 global_current_state = ATTACK;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le soldat tire.\n");
+                ammo -= 1;
                 
                 break;
             }
             
             if (health == 0) {
                 global_current_state = DEAD;
+                global_state_entered = false; // Reset the state entry flag
                 
-                printf("Le soldat est morti.\n");
+                printf("Le soldat est mort.\n");
                 
                 break;
             }
             
             if (player_health <= 0) {
                 global_current_state = WINNER;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le joueur a péri.\n");
                 
@@ -180,28 +261,17 @@ void global_step() {
         
         case DEAD:
             
-            printf("Le soldat est morti.\n");
-            
-
-            
             break;
         
         case WINNER:
-            
-            printf("Le joueur a péri.\n");
-            
-
             
             break;
         
         case IDLE:
             
-            printf("Tourelle en attente.\n");
-            
-
-            
             if (enemy_spotted) {
                 global_current_state = PATROL;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Tourelle en patrouille\n");
                 
@@ -210,6 +280,7 @@ void global_step() {
             
             if (health <= 0 || turret_health <= 0) {
                 global_current_state = DEAD;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Tourelle HS !\n");
                 
@@ -220,12 +291,9 @@ void global_step() {
         
         case PATROL:
             
-            printf("Tourelle en patrouille\n");
-            
-
-            
             if (health <= 0 || turret_health <= 0) {
                 global_current_state = DEAD;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Tourelle HS !\n");
                 
@@ -234,6 +302,7 @@ void global_step() {
             
             if (player_health <= 0) {
                 global_current_state = WINNER;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Le joueur est mort.\n");
                 
@@ -242,6 +311,7 @@ void global_step() {
             
             if (enemy_spotted) {
                 global_current_state = PATROL;
+                global_state_entered = false; // Reset the state entry flag
                 
                 printf("Tourelle en patrouille\n");
                 
@@ -252,17 +322,9 @@ void global_step() {
         
         case WINNER:
             
-            printf("Le joueur est mort.\n");
-            
-
-            
             break;
         
         case DEAD:
-            
-            printf("Tourelle HS !\n");
-            
-
             
             break;
         
@@ -290,39 +352,58 @@ typedef enum {
 } Turret_state;
 
 static Turret_state Turret_current_state = IDLE;
+static bool Turret_state_entered = false; // Tracks if the state was just entered
 
 void Turret_step() {
+    if (!Turret_state_entered) {
+        switch (Turret_current_state) {
+            
+            case IDLE:
+                
+                printf("Tourelle en attente.\n");
+                
+                Turret_state_entered = true; // Mark the state as entered
+                break;
+            
+            case PATROL:
+                
+                printf("Tourelle en patrouille\n");
+                
+                Turret_state_entered = true; // Mark the state as entered
+                break;
+            
+            case WINNER:
+                
+                printf("Le joueur est mort.\n");
+                
+                Turret_state_entered = true; // Mark the state as entered
+                break;
+            
+            case DEAD:
+                
+                printf("Tourelle HS !\n");
+                
+                Turret_state_entered = true; // Mark the state as entered
+                break;
+            
+        }
+    }
+
     switch (Turret_current_state) {
         
         case IDLE:
-            
-            printf("Tourelle en attente.\n");
-            
-
             
             break;
         
         case PATROL:
             
-            printf("Tourelle en patrouille\n");
-            
-
-            
             break;
         
         case WINNER:
             
-            printf("Le joueur est mort.\n");
-            
-
-            
             break;
         
         case DEAD:
-            
-            printf("Tourelle HS !\n");
-            
-
             
             break;
         

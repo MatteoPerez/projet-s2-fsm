@@ -11,18 +11,29 @@ typedef enum {
 } {{ fsm_name }}_state;
 
 static {{ fsm_name }}_state {{ fsm_name }}_current_state = {{ fsm.initial_state | upper }};
+static bool {{ fsm_name }}_state_entered = false;
 
 void {{ fsm_name }}_step() {
+    if (!{{ fsm_name }}_state_entered) {
+        switch ({{ fsm_name }}_current_state) {
+            {% for node in fsm.nodes %}
+            case {{ node.label | upper }}:
+                {% if node.description %}
+                {{ node.description | indent(16) }}
+                {% endif %}
+                {{ fsm_name }}_state_entered = true;
+                break;
+            {% endfor %}
+        }
+    }
+
     switch ({{ fsm_name }}_current_state) {
         {% for node in fsm.nodes %}
         case {{ node.label | upper }}:
-            {% if node.description %}
-            {{ node.description | indent(12) }}
-            {% endif %}
-
             {% for edge in fsm.edges if edge.source == node.id %}
             if ({{ (fsm.edges | selectattr("target", "equalto", edge.target) | first).description }}) {
                 {{ fsm_name }}_current_state = {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).label | upper }};
+                {{ fsm_name }}_state_entered = false;
                 {% if (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description %}
                 {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description | indent(16) }}
                 {% endif %}

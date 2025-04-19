@@ -1,0 +1,18 @@
+Génération de code C :
+- Gérer toutes les extensions.
+- Gérer les sous-machines --> bien séparer les machines dans un même graphe.
+- Tenter un template avec FreeRTOS (multi-tâche préemptif temps réel).
+
+Alternatives a check :
+- Scheduler événementiel (basé sur une file d’événements)
+- FSM multiplexées avec un tick (timer périodique)FSM multiplexées avec un tick (timer périodique)
+- Automate hiérarchique (UML / HFSM)
+
+Simulation / Vérification :
+- Vérifier les états innaccessibles (aucune transition)
+- Système de vérification sur le menu.
+- Vérifier les doubles transitions.
+- Peut-être voir le parcours en largeur.
+
+Autres :
+- Faire une fiche technique + guide.
