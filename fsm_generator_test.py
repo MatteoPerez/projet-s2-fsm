@@ -1,4 +1,6 @@
 import os
+import gzip
+import shutil
 import tkinter as tk
 from tkinter import filedialog
 from lxml import etree # etree is used to parse XML files
@@ -136,6 +138,15 @@ def choose_file(multitasking):
         extension = os.path.splitext(file)[1]
         # print(extension)
         if extension == ".graphml":
+            fsms = parse_graphml(file)
+            print_fsms(fsms)
+            generate_c_code(fsms, multitasking)
+        elif extension == ".graphml.gz":
+            base_name = os.path.splitext(file)[0]
+            output_path = f"{base_name}_decompressed.graphml"
+            with gzip.open(file, 'rb') as f_in:
+                with open(output_path, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
             fsms = parse_graphml(file)
             print_fsms(fsms)
             generate_c_code(fsms, multitasking)
