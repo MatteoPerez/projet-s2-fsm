@@ -17,9 +17,7 @@ def parse_graphml(file_path):
         'y': "http://www.yworks.com/xml/graphml" # Namespace used by yEd 
     }
 
-    fsms = {
-        "global": {"nodes": [], "edges": []}
-    }
+    fsms = {}
 
     # Extract nodes
     def extract_node(node):
@@ -47,11 +45,6 @@ def parse_graphml(file_path):
             shape = "Ellipse"
 
         return {"id": node_id, "label": label, "description": description, "shape": shape}
-    
-    for node in root.xpath("//graphml:node", namespaces=namespaces): # Use XPath to find all <node> elements in the GraphML file
-        is_group = node.xpath(".//graphml:graph", namespaces=namespaces)
-        if not is_group:
-            fsms["global"]["nodes"].append(extract_node(node))
 
     # Extract edges
     def extract_edge(edge):
@@ -75,50 +68,49 @@ def parse_graphml(file_path):
 
         return {"label": label, "source": source, "target": target, "description": description}
 
-    for edge in root.xpath("//graphml:edge", namespaces=namespaces): # Find all <edge> elements and use 'graphml' prefix
-        fsms["global"]["edges"].append(extract_edge(edge))
+    def process_graph(graph_element, graph_name):
+        fsm = {"nodes": [], "edges": []}
 
-    for group_node in root.xpath("//graphml:node[graphml:graph]", namespaces=namespaces):
-        group_label = group_node.xpath(".//y:NodeLabel/text()", namespaces=namespaces)
-        group_label = group_label[0].strip() if group_label else group_node.get("id")
-        
-        fsms[group_label] = {"nodes": [], "edges": []}
-        
-        subgraph = group_node.find(".//graphml:graph", namespaces=namespaces)
-        if subgraph is not None:
-            for subnode in subgraph.xpath(".//graphml:node", namespaces=namespaces):
-                fsms[group_label]["nodes"].append(extract_node(subnode))
-            # Edges are not under nodes in the .graphml file
-            # for subedge in subgraph.xpath(".//graphml:edge", namespaces=namespaces):
-            #     print(subedge)
-            #     fsms[group_label]["edges"].append(extract_edge(subedge))
+        for node in graph_element.findall("graphml:node", namespaces=namespaces):
+            subgraph = node.find("graphml:graph", namespaces=namespaces)
+            if subgraph is not None:
+                label = node.xpath(".//y:NodeLabel/text()", namespaces=namespaces)
+                label = label[0].strip() if label else node.get("id")
+                process_graph(subgraph, label)
+            else:
+                fsm["nodes"].append(extract_node(node))
 
-    for fsm_name, fsm in fsms.items():
-        # Find the node with the shape "octagon" to set as the initial state
+        for edge in graph_element.findall("graphml:edge", namespaces=namespaces): # Find all <edge> elements and use 'graphml' prefix
+            fsm["edges"].append(extract_edge(edge))
+        
         initial_node = next((node for node in fsm["nodes"] if node["shape"] == "octagon"), None)
         if initial_node:
-            fsm["initial_state"] = initial_node["label"]
+            fsm["initial_state"] = initial_node["label"] 
         else:
-            fsm["initial_state"] = fsm["nodes"][0]["label"] # First node is default if no octagon is found
+            fsm["initial_state"] = fsm["nodes"][0]["label"] if fsm["nodes"] else "None" # First node is default if no octagon is found
 
+        fsms[graph_name] = fsm
+    
+    top_graph = root.find(".//graphml:graph", namespaces=namespaces)
+    if top_graph is not None:
+        process_graph(top_graph, "global")
+    
     return fsms
 
 def generate_c_code(fsms, multitasking, output_file="generated_fsm.c"):
     env = Environment(loader=FileSystemLoader('.'))
     if(multitasking == "preemptive"):
-        template = env.get_template("fsm_template_preemptive.c.j2")    
-        output = template.render(fsms=fsms)
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(output)
-        print(f"C code with preemptive multitasking generated in : {output_file}")
+        template = env.get_template("fsm_template_preemptive.c.j2")
     elif(multitasking == "cooperative"):
-        template = env.get_template("fsm_template_cooperative.c.j2")    
-        output = template.render(fsms=fsms)
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(output)
-        print(f"C code with cooperative multitasking generated in : {output_file}")
+        template = env.get_template("fsm_template_cooperative.c.j2")
     else:
         print("Error when generating C code")
+        return
+    
+    output = template.render(fsms=fsms)
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(output)
+    print(f"C code with {multitasking} in : {output_file}")
 
 def print_fsms(fsms):
     for fsm_name, fsm in fsms.items():
@@ -127,9 +119,8 @@ def print_fsms(fsms):
         for node in fsm["nodes"]:
             print(f"    - ID: {node['id']}, Label: {node['label']}, Description: {node['description']}")
         print("Edges:")
-        for edge in fsm["edges"]:
-            print(f"    - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}, Description: {edge['description']}")
-        print("")
+    for edge in fsm["edges"]:
+        print(f"    - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}, Description: {edge['description']}")
 
 def choose_file(multitasking):
     file = filedialog.askopenfilename()
@@ -139,17 +130,18 @@ def choose_file(multitasking):
         # print(extension)
         if extension == ".graphml":
             fsms = parse_graphml(file)
-            print_fsms(fsms)
-            generate_c_code(fsms, multitasking)
-        elif extension == ".graphml.gz":
+        elif extension == ".graphmlz":
             base_name = os.path.splitext(file)[0]
             output_path = f"{base_name}_decompressed.graphml"
             with gzip.open(file, 'rb') as f_in:
                 with open(output_path, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
             fsms = parse_graphml(file)
-            print_fsms(fsms)
-            generate_c_code(fsms, multitasking)
+        else:
+            print("Error: extension not supported")
+            return
+        print_fsms(fsms)
+        generate_c_code(fsms, multitasking)
     else:
         print("Error when selecting file")
 
