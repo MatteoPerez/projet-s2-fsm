@@ -98,7 +98,7 @@ def parse_graphml(file_path):
     return fsms
 
 def generate_c_code(fsms, multitasking, output_file="generated_fsm.c"):
-    env = Environment(loader=FileSystemLoader('.'))
+    env = Environment(loader=FileSystemLoader('templates'))
     if(multitasking == "preemptive"):
         template = env.get_template("fsm_template_preemptive.c.j2")
     elif(multitasking == "cooperative"):
@@ -131,8 +131,8 @@ def choose_file(multitasking):
         if extension == ".graphml":
             fsms = parse_graphml(file)
         elif extension == ".graphmlz":
-            base_name = os.path.splitext(file)[0]
-            output_path = f"{base_name}_decompressed.graphml"
+            base_name = os.path.basename(os.path.splitext(file)[0])
+            output_path = os.path.join("graphs", f"{base_name}_decompressed.graphml")
             with gzip.open(file, 'rb') as f_in:
                 with open(output_path, 'wb') as f_out:
                     shutil.copyfileobj(f_in, f_out)
