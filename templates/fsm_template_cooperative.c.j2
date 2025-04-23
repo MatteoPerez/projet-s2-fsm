@@ -4,6 +4,10 @@
 #include <unistd.h>
 
 {% for fsm_name, fsm in fsms.items() %}
+{{ fsm.globals }}
+{% endfor %}
+
+{% for fsm_name, fsm in fsms.items() %}
 typedef enum {
     {% for node in fsm.nodes %}
     {{ node.label | upper }},

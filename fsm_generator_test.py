@@ -71,6 +71,14 @@ def parse_graphml(file_path):
     def process_graph(graph_element, graph_name):
         fsm = {"nodes": [], "edges": []}
 
+        # Extract all variables
+        global_data = graph_element.xpath("./graphml:data[@key='d0']", namespaces=namespaces)
+        if global_data:
+            if global_data[0].text:
+                fsm["globals"] = global_data[0].text.strip() 
+            else:
+                fsm["globals"] = ""
+
         for node in graph_element.findall("graphml:node", namespaces=namespaces):
             subgraph = node.find("graphml:graph", namespaces=namespaces)
             if subgraph is not None:
@@ -112,6 +120,24 @@ def generate_c_code(fsms, multitasking, output_file="generated_fsm.c"):
         f.write(output)
     print(f"C code with {multitasking} in : {output_file}")
 
+def validate_fsms(fsms):
+    errors = []
+    for fsm_name, fsm in fsms.items():
+        for node in fsm["nodes"]:
+            if not node["description"] or node["description"] == "No description":
+                errors.append(f"FSM '{fsm_name}': Node '{node['label']}' (ID: {node['id']}) has no description.")
+
+        for edge in fsm["edges"]:
+            if not edge["label"] or edge["label"] == "No description":
+                errors.append(f"Edge from '{edge['source']}' to '{edge['target']}' has no description.")
+
+    if errors:
+        print("Validation Errors:")
+        for error in errors:
+            print(f"    - {error}")
+    else:
+        print("All FSMs are valid!")
+
 def print_fsms(fsms):
     for fsm_name, fsm in fsms.items():
         print(f"FSM: {fsm_name}")
@@ -140,7 +166,8 @@ def choose_file(multitasking):
         else:
             print("Error: extension not supported")
             return
-        print_fsms(fsms)
+        validate_fsms(fsms)
+        # print_fsms(fsms)
         generate_c_code(fsms, multitasking)
     else:
         print("Error when selecting file")

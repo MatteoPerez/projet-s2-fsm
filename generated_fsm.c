@@ -7,6 +7,16 @@
 #include "task.h"
 
 
+
+
+
+
+int max_ammo = 5;
+int ammo = max_ammo;
+int health = 6;
+
+
+
 typedef enum {
     
     IDLE,
@@ -63,6 +73,52 @@ void Turret_step() {
 void* Turret_run(void* arg) {
     while (true) {
         Turret_step();
+        usleep(100000);
+    }
+    return NULL;
+}
+
+typedef enum {
+    
+    
+                ,
+    
+    
+                ,
+    
+} Sensor_state;
+
+static Sensor_state Sensor_current_state = 
+                ;
+
+void Sensor_step() {
+    while(1){
+        switch (Sensor_current_state) {
+        
+        case 
+                :
+            
+            No description
+            
+
+            
+            break;
+        
+        case 
+                :
+            
+            No description
+            
+
+            
+            break;
+        
+    }
+}
+
+void* Sensor_run(void* arg) {
+    while (true) {
+        Sensor_step();
         usleep(100000);
     }
     return NULL;
@@ -270,16 +326,18 @@ void* global_run(void* arg) {
 
 
 int main() {
-    pthread_t threads[2];
+    pthread_t threads[3];
     int thread_index = 0;
 
     
     pthread_create(&threads[thread_index++], NULL, Turret_run, NULL);
     
+    pthread_create(&threads[thread_index++], NULL, Sensor_run, NULL);
+    
     pthread_create(&threads[thread_index++], NULL, global_run, NULL);
     
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         pthread_join(threads[i], NULL);
     }
     while(1);
