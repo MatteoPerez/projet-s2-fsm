@@ -1,0 +1,71 @@
+// FreeRTOS multitasking
+#include <stdio.h>
+#include <stdbool.h>
+#include "FreeRTOS.h"
+#include "task.h"
+
+{% for fsm_name, fsm in fsms.items() %}
+{{ fsm.globals }}
+{% endfor %}
+
+{% for fsm_name, fsm in fsms.items() %}
+typedef enum {
+    {% for node in fsm.nodes %}
+    {{ node.label | upper }},
+    {% endfor %}
+} {{ fsm_name }}_state;
+
+static {{ fsm_name }}_state {{ fsm_name }}_current_state = {{ fsm.initial_state | upper }};
+static bool {{ fsm_name }}_state_entered = false;
+
+void {{ fsm_name }}_step() {
+    if (!{{ fsm_name }}_state_entered) {
+        switch ({{ fsm_name }}_current_state) {
+            {% for node in fsm.nodes %}
+            case {{ node.label | upper }}:
+                {% if node.description %}
+                {{ node.description | indent(16) }}
+                {% endif %}
+                {{ fsm_name }}_state_entered = true;
+                break;
+            {% endfor %}
+        }
+    }
+
+    switch ({{ fsm_name }}_current_state) {
+        {% for node in fsm.nodes %}
+        case {{ node.label | upper }}:
+            {% for edge in fsm.edges if edge.source == node.id %}
+            if ({{ (fsm.edges | selectattr("target", "equalto", edge.target) | first).description }}) {
+                {{ fsm_name }}_current_state = {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).label | upper }};
+                {{ fsm_name }}_state_entered = false;
+                {% if (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description %}
+                {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description | indent(16) }}
+                {% endif %}
+                break;
+            }
+            {% endfor %}
+            break;
+        {% endfor %}
+    }
+}
+
+void {{ fsm_name }}_task(void* pvParameters) {
+    while (true) {
+        {{ fsm_name }}_step();
+        vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100ms
+    }
+}
+{% endfor %}
+
+int main() {
+    {% for fsm_name in fsms %}
+    xTaskCreate({{ fsm_name }}_task, "{{ fsm_name }}_Task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
+    {% endfor %}
+
+    vTaskStartScheduler();
+
+    // The program should never reach here
+    for (;;);
+    return 0;
+}
