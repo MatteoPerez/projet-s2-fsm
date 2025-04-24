@@ -134,7 +134,7 @@ def validate_fsms(fsms):
         for node_id in isolated_nodes:
             node = next((n for n in fsm["nodes"] if n["id"] == node_id), None)
             if node:
-                errors.append(f"FSM '{fsm_name}': Node '{node['label']}' (ID: {node['id']}) is isolated (not a target of any edge).")
+                errors.append(f"FSM '{fsm_name}': Node '{node['label']}' (ID: {node['id']}) is isolated.")
 
         for node in fsm["nodes"]:
             if not node["description"] or node["description"] == "No description":
