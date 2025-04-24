@@ -115,7 +115,7 @@ def generate_c_code(fsms, multitasking, output_file="generated_fsm.c"):
     elif(multitasking == "cooperative"):
         template = env.get_template("fsm_template_cooperative.c.j2")
     elif(multitasking == "rtos"):
-        template = env.get_template("fsm_template_rtos.c.j2")
+        template = env.get_template("fsm_template_freertos.c.j2")
     else:
         print("Error when generating C code")
         return
@@ -128,6 +128,14 @@ def generate_c_code(fsms, multitasking, output_file="generated_fsm.c"):
 def validate_fsms(fsms):
     errors = []
     for fsm_name, fsm in fsms.items():
+        all_node_ids = {node["id"] for node in fsm["nodes"]}
+        target_node_ids = {edge["target"] for edge in fsms["global"]["edges"]}
+        isolated_nodes = all_node_ids - target_node_ids
+        for node_id in isolated_nodes:
+            node = next((n for n in fsm["nodes"] if n["id"] == node_id), None)
+            if node:
+                errors.append(f"FSM '{fsm_name}': Node '{node['label']}' (ID: {node['id']}) is isolated (not a target of any edge).")
+
         for node in fsm["nodes"]:
             if not node["description"] or node["description"] == "No description":
                 errors.append(f"FSM '{fsm_name}': Node '{node['label']}' (ID: {node['id']}) has no description.")
@@ -156,20 +164,15 @@ def print_fsms(fsms):
         print_graph(fsm_name, fsm)
         print()
     
-    for fsm_name, fsm in fsms.items():
-        print(f"FSM: {fsm_name}")
-        print("Globals:")
-        print(f"    {fsm.get('globals', 'No globals defined')}")
-        print("Edges:")
-        for edge in fsm["edges"]:
-            print(f"    - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}, Description: {edge['description']}")
+    print("Edges:")
+    for edge in fsm["edges"]:
+        print(f"    - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}, Description: {edge['description']}")
+    print()
 
 def choose_file(multitasking):
     file = filedialog.askopenfilename()
-    # print(file)
     if file:
         extension = os.path.splitext(file)[1]
-        # print(extension)
         if extension == ".graphml":
             fsms = parse_graphml(file)
         elif extension == ".graphmlz":
@@ -183,7 +186,7 @@ def choose_file(multitasking):
             print("Error: extension not supported")
             return
         validate_fsms(fsms)
-        print_fsms(fsms)
+        # print_fsms(fsms)
         generate_c_code(fsms, multitasking)
     else:
         print("Error when selecting file")
@@ -201,10 +204,9 @@ label.pack()
 choose_button_2 = tk.Button(window, text="Choose file", command=lambda: choose_file("cooperative"))
 choose_button_2.pack()
 
-window.mainloop()
+label = tk.Label(window, text="RTOS multitasking")
+label.pack()
+choose_button_2 = tk.Button(window, text="Choose file", command=lambda: choose_file("rtos"))
+choose_button_2.pack()
 
-# # Example
-# if __name__ == "__main__":
-#     graphml_file = "exp_vg_enemy.graphml"
-#     nodes, edges = parse_graphml(graphml_file)
-#     print_graph(nodes, edges)
+window.mainloop()
