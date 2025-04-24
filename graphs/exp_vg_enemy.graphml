@@ -203,7 +203,6 @@ ammo = max_ammo;]]></data>
       </data>
       <graph edgedefault="directed" id="n7:">
         <node id="n7::n0">
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="66.0" width="66.0" x="56.0" y="-103.0"/>
@@ -222,7 +221,6 @@ ammo = max_ammo;]]></data>
           </data>
         </node>
         <node id="n7::n1">
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="70.0" width="70.0" x="263.218" y="-80.0"/>
@@ -241,7 +239,6 @@ ammo = max_ammo;]]></data>
           </data>
         </node>
         <node id="n7::n2">
-          <data key="d5"/>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="65.0" width="65.0" x="168.21800000000002" y="-182.0"/>
@@ -488,7 +485,6 @@ ammo = max_ammo;]]></data>
       </data>
     </edge>
     <edge id="n7::e0" source="n7::n0" target="n7::n1">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>

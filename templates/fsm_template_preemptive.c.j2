@@ -1,10 +1,8 @@
-// Preeptive multitasking
+// Preemptive multitasking (pthread)
 #include <stdio.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "FreeRTOS.h"
-#include "task.h"
 
 {% for fsm_name, fsm in fsms.items() %}
 {{ fsm.globals }}
@@ -18,19 +16,29 @@ typedef enum {
 } {{ fsm_name }}_state;
 
 static {{ fsm_name }}_state {{ fsm_name }}_current_state = {{ fsm.initial_state | upper }};
+static bool {{ fsm_name }}_state_entered = false;
 
 void {{ fsm_name }}_step() {
-    while(1){
+    if (!{{ fsm_name }}_state_entered) {
         switch ({{ fsm_name }}_current_state) {
+            {% for node in fsm.nodes %}
+            case {{ node.label | upper }}:
+                {% if node.description %}
+                {{ node.description | indent(16) }}
+                {% endif %}
+                {{ fsm_name }}_state_entered = true;
+                break;
+            {% endfor %}
+        }
+    }
+
+    switch ({{ fsm_name }}_current_state) {
         {% for node in fsm.nodes %}
         case {{ node.label | upper }}:
-            {% if node.description %}
-            {{ node.description | indent(12) }}
-            {% endif %}
-
             {% for edge in fsm.edges if edge.source == node.id %}
             if ({{ (fsm.edges | selectattr("target", "equalto", edge.target) | first).description }}) {
                 {{ fsm_name }}_current_state = {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).label | upper }};
+                {{ fsm_name }}_state_entered = false;
                 {% if (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description %}
                 {{ (fsm.nodes | selectattr("id", "equalto", edge.target) | first).description | indent(16) }}
                 {% endif %}
@@ -62,5 +70,6 @@ int main() {
     for (int i = 0; i < {{ fsms|length }}; i++) {
         pthread_join(threads[i], NULL);
     }
-    while(1);
+
+    return 0;
 }
