@@ -126,7 +126,6 @@ def validate_fsms(fsms):
         for node in fsm["nodes"]:
             if not node["description"] or node["description"] == "No description":
                 errors.append(f"FSM '{fsm_name}': Node '{node['label']}' (ID: {node['id']}) has no description.")
-
         for edge in fsm["edges"]:
             if not edge["label"] or edge["label"] == "No description":
                 errors.append(f"Edge from '{edge['source']}' to '{edge['target']}' has no description.")
@@ -139,14 +138,26 @@ def validate_fsms(fsms):
         print("All FSMs are valid!")
 
 def print_fsms(fsms):
+    def print_graph(fsm_name, fsm, indent=""):
+        print(f"{indent}FSM: {fsm_name}")
+        print(f"{indent}Nodes:")
+        for node in fsm["nodes"]:
+            print(f"{indent}    - ID: {node['id']}, Label: {node['label']}, Description: {node['description']}, Shape: {node['shape']}")
+            if "subgraph" in node:
+                print(f"{indent}    Subgraph:")
+                print_graph(node["label"], node["subgraph"], indent + "        ")
+
+    for fsm_name, fsm in fsms.items():
+        print_graph(fsm_name, fsm)
+        print()
+    
     for fsm_name, fsm in fsms.items():
         print(f"FSM: {fsm_name}")
-        print("Nodes:")
-        for node in fsm["nodes"]:
-            print(f"    - ID: {node['id']}, Label: {node['label']}, Description: {node['description']}")
+        print("Globals:")
+        print(f"    {fsm.get('globals', 'No globals defined')}")
         print("Edges:")
-    for edge in fsm["edges"]:
-        print(f"    - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}, Description: {edge['description']}")
+        for edge in fsm["edges"]:
+            print(f"    - Source: {edge['source']}, Target: {edge['target']}, Label: {edge['label']}, Description: {edge['description']}")
 
 def choose_file(multitasking):
     file = filedialog.askopenfilename()
@@ -167,7 +178,7 @@ def choose_file(multitasking):
             print("Error: extension not supported")
             return
         validate_fsms(fsms)
-        # print_fsms(fsms)
+        print_fsms(fsms)
         generate_c_code(fsms, multitasking)
     else:
         print("Error when selecting file")

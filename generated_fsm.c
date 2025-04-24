@@ -86,14 +86,16 @@ typedef enum {
     
                 ,
     
-} Sensor_state;
+    SOLITAIRE,
+    
+} Errors_state;
 
-static Sensor_state Sensor_current_state = 
+static Errors_state Errors_current_state = 
                 ;
 
-void Sensor_step() {
+void Errors_step() {
     while(1){
-        switch (Sensor_current_state) {
+        switch (Errors_current_state) {
         
         case 
                 :
@@ -106,6 +108,14 @@ void Sensor_step() {
         
         case 
                 :
+            
+            No description
+            
+
+            
+            break;
+        
+        case SOLITAIRE:
             
             No description
             
@@ -116,9 +126,9 @@ void Sensor_step() {
     }
 }
 
-void* Sensor_run(void* arg) {
+void* Errors_run(void* arg) {
     while (true) {
-        Sensor_step();
+        Errors_step();
         usleep(100000);
     }
     return NULL;
@@ -332,7 +342,7 @@ int main() {
     
     pthread_create(&threads[thread_index++], NULL, Turret_run, NULL);
     
-    pthread_create(&threads[thread_index++], NULL, Sensor_run, NULL);
+    pthread_create(&threads[thread_index++], NULL, Errors_run, NULL);
     
     pthread_create(&threads[thread_index++], NULL, global_run, NULL);
     
