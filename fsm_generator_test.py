@@ -28,6 +28,7 @@ def parse_graphml(file_path):
         else:
             label = f"Node_{node_id}"
 
+        # extract description
         description_data = node.xpath("./graphml:data[@key='d5']", namespaces=namespaces)
         description = ""
         for data in description_data:
@@ -38,6 +39,7 @@ def parse_graphml(file_path):
         if not description:
             description = "No description"
         
+        # Extract shape
         shape = node.xpath(".//y:Shape/@type", namespaces=namespaces)
         if shape:
             shape = shape[0]
@@ -56,6 +58,7 @@ def parse_graphml(file_path):
         else:
             label = None
 
+        # Extract description
         description_data = edge.xpath("./graphml:data[@key='d9']", namespaces=namespaces)
         description = ""
         for data in description_data:
@@ -111,6 +114,8 @@ def generate_c_code(fsms, multitasking, output_file="generated_fsm.c"):
         template = env.get_template("fsm_template_preemptive.c.j2")
     elif(multitasking == "cooperative"):
         template = env.get_template("fsm_template_cooperative.c.j2")
+    elif(multitasking == "rtos"):
+        template = env.get_template("fsm_template_rtos.c.j2")
     else:
         print("Error when generating C code")
         return

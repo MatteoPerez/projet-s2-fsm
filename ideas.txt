@@ -17,3 +17,6 @@ Mais cela peut rendre le rendu graphique très vite illisible sur yEd.
 
 Questions : 
 Est-ce qu'il faut mettre forcément des flèches qui reviennent sur elle-même pour représenter par exemple des boucles "while" ?
+
+H : 1 2 3 4 5 11 12
+M : 5 6 7 8 9 10 13
